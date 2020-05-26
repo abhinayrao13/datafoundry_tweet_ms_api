@@ -1,15 +1,15 @@
-class TweetsController < ApplicationController
-  before_action :authenticate_user!
+class Api::V1::TweetsController < ApplicationController
+  before_action :authenticate_api_v1_user!
   before_action :set_tweet, only: [:update, :destroy]
-  before_action :authorize_user, only: [:update, :destroy]
+  before_action :authorize_api_v1_user, only: [:update, :destroy]
 
   # POST /tweets
   def create
     @tweet = Tweet.new(tweet_params)
-    @tweet.user = current_user
+    @tweet.user = current_api_v1_user
 
     if @tweet.save
-      render json: @tweet, status: :created, location: @tweet
+      render json: @tweet, status: :created, location: api_v1_tweet_url(@tweet)
     else
       render json: @tweet.errors, status: :unprocessable_entity
     end
@@ -41,8 +41,8 @@ class TweetsController < ApplicationController
     end
 
     # Authorize user
-    def authorize_user
-      authorised = (@tweet.user == current_user) || current_user.admin?
+    def authorize_api_v1_user
+      authorised = (@tweet.user == current_api_v1_user) || current_api_v1_user.admin?
       render json: {errors: ["Not Authorized"]}, status: :unprocessable_entity and return unless authorised
     end
 end
